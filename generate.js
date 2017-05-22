@@ -43,7 +43,7 @@ module.exports = async function () {
   var text = new Konva.Text({
     text: random
       ? 'LuckyJing'
-      : '酥糖妈妈',
+      : '苏靖鑫',
     x: 153,
     y: 86,
     fill: 'white',
