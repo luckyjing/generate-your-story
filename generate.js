@@ -21,7 +21,6 @@ async function addImage(filePath, config) {
         x: 0,
         y: 0
       }, config));
-      imageObj = null;
       resolve(image);
     }
     imageObj.src = filePath;
@@ -65,8 +64,6 @@ module.exports = async function () {
             image
               .getBuffer(Jimp.MIME_JPEG, function (err, buffer) {
                 resolve(buffer);
-                stage = null;
-                layer = null;
               });
           }
         })
