@@ -1,3 +1,5 @@
+- node版本要求：>= 7.6 
+
 ## 安装node-canvas
 
 参考这个 ：https://github.com/Automattic/node-canvas
