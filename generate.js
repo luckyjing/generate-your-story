@@ -1,5 +1,8 @@
 var fs = require('fs'),
-  Konva = require('konva');
+  Jimp = require('jimp');
+var Konva = require('konva/src/Core');
+require('konva/src/shapes/Image');
+require('konva/src/shapes/Text');
 
 function readImageData(path) {
   return fs
@@ -7,13 +10,18 @@ function readImageData(path) {
     .toString('base64');
 }
 // 返回图片对象
-async function addImage(filePath) {
+async function addImage(filePath, config) {
   return new Promise(resolve => {
     let imageObj = new Konva
       .window
       .Image();
     imageObj.onload = function () {
-      let image = new Konva.Image({image: imageObj, x: 0, y: 0});
+      let image = new Konva.Image(Object.assign({
+        image: imageObj,
+        x: 0,
+        y: 0
+      }, config));
+      imageObj = null;
       resolve(image);
     }
     imageObj.src = filePath;
@@ -21,18 +29,25 @@ async function addImage(filePath) {
 }
 
 module.exports = async function () {
-  var stage = new Konva.Stage({width: 1772, height: 1772});
-
+  const WIDTH = 1000;
+  const HEIGHT = 1000;
+  var stage = new Konva.Stage({width: WIDTH, height: HEIGHT});
   var layer = new Konva.Layer();
   stage.add(layer);
-  const bgImage = await addImage('./bg.jpg');
+  const bgImage = await addImage('./bg.jpg', {
+    width: WIDTH,
+    height: HEIGHT
+  });
   layer.add(bgImage);
+  let random = Math.round(Math.random());
   var text = new Konva.Text({
-    text: '苏靖鑫' ,
-    x: 294,
-    y: 183,
+    text: random
+      ? 'LuckyJing'
+      : '酥糖妈妈',
+    x: 153,
+    y: 86,
     fill: 'white',
-    fontSize: 220,
+    fontSize: 100,
     fontStyle: 'bold'
   });
   layer.add(text);
@@ -42,7 +57,19 @@ module.exports = async function () {
     stage.toDataURL({
       callback: function (data) {
         var base64Data = data.replace(/^data:image\/png;base64,/, '');
-        resolve(new Buffer(base64Data, 'base64'))
+        const imgBuffer = new Buffer(base64Data, 'base64');
+        Jimp.read(imgBuffer, function (err, image) {
+          if (err) {
+            resolve(err);
+          } else {
+            image
+              .getBuffer(Jimp.MIME_JPEG, function (err, buffer) {
+                resolve(buffer);
+                stage = null;
+                layer = null;
+              });
+          }
+        })
       }
     });
   })
